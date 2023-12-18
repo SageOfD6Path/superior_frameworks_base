@@ -380,6 +380,29 @@ public class PixelPropsUtils {
         }
     }
 
+    private static void setVersionFieldString(String key, String value) {
+        try {
+            if (DEBUG) Log.d(TAG, "Defining prop " + key + " to " + value);
+            Field field = Build.VERSION.class.getDeclaredField(key);
+            field.setAccessible(true);
+            field.set(null, value);
+            field.setAccessible(false);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            Log.e(TAG, "Failed to set prop " + key, e);
+        }
+    }
+
+    private static void spoofBuildGms() {
+        // Alter build parameters to avoid hardware attestation enforcement
+        setPropValue("BRAND", "YU nitrogen");
+        setPropValue("MANUFACTURER", "YU");
+        setPropValue("DEVICE", "YUREKA");
+        setPropValue("FINGERPRINT", "YU/YUREKA/YUREKA:5.1.1/LMY49J/YOG4PAS8A4:user/release-keys");
+        setPropValue("MODEL", "YU5510");
+        setPropValue("PRODUCT", "YUREKA");
+        setVersionFieldString("SECURITY_PATCH", "2015-11-01");
+    }
+
     private static boolean isCallerSafetyNet() {
         return sIsGms && Arrays.stream(Thread.currentThread().getStackTrace())
                 .anyMatch(elem -> elem.getClassName().contains("DroidGuard"));
